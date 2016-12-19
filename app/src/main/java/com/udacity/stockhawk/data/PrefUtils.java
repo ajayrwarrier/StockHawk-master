@@ -8,7 +8,10 @@ import com.udacity.stockhawk.R;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import xdroid.toaster.Toaster;
 public final class PrefUtils {
+    static SharedPreferences prefs;
     private PrefUtils() {
     }
     public static Set<String> getStocks(Context context) {
@@ -16,7 +19,7 @@ public final class PrefUtils {
         String initializedKey = context.getString(R.string.pref_stocks_initialized_key);
         String[] defaultStocksList = context.getResources().getStringArray(R.array.default_stocks);
         HashSet<String> defaultStocks = new HashSet<>(Arrays.asList(defaultStocksList));
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
         boolean initialized = prefs.getBoolean(initializedKey, false);
         if (!initialized) {
             SharedPreferences.Editor editor = prefs.edit();
@@ -31,11 +34,14 @@ public final class PrefUtils {
         String key = context.getString(R.string.pref_stocks_key);
         Set<String> stocks = getStocks(context);
         if (add) {
+            if (stocks.contains(symbol)) {
+                Toaster.toast(context.getString(R.string.stock_exist));
+            }
             stocks.add(symbol);
         } else {
             stocks.remove(symbol);
         }
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putStringSet(key, stocks);
         editor.apply();

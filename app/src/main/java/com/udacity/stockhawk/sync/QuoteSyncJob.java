@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 
@@ -29,12 +30,13 @@ import yahoofinance.histquotes.Interval;
 import yahoofinance.quotes.stock.StockQuote;
 public final class QuoteSyncJob {
     static final int ONE_OFF_ID = 2;
-    private static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
+    private static String ACTION_DATA_UPDATED;
     private static final int PERIOD = 300000;
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
     static void getQuotes(final Context context) {
-        Timber.d("Running sync job");
+        ACTION_DATA_UPDATED = context.getString(R.string.update_action);
+        Timber.d(context.getString(R.string.message_syncrun));
         Calendar from = Calendar.getInstance();
         Calendar to = Calendar.getInstance();
         from.add(Calendar.YEAR, -2);
@@ -54,6 +56,7 @@ public final class QuoteSyncJob {
             while (iterator.hasNext()) {
                 String symbol = iterator.next();
                 try {
+
                     Stock stock = quotes.get(symbol);
                     StockQuote quote = stock.getQuote();
                     float price = quote.getPrice().floatValue();
@@ -76,8 +79,11 @@ public final class QuoteSyncJob {
                     quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
                     quoteCV.put(Contract.Quote.COLUMN_HISTORY, historyBuilder.toString());
                     quoteCVs.add(quoteCV);
+                    if(!quoteCVs.contains(quoteCV)){
+                        Toaster.toast("Stock exist");
+                    }
                 } catch (NullPointerException e) {
-                    Toaster.toast("Stock doesn't exist!");
+                    Toaster.toast(context.getString(R.string.error_doesntexist));
                 }
             }
             context.getContentResolver()
@@ -87,11 +93,11 @@ public final class QuoteSyncJob {
             Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
             context.sendBroadcast(dataUpdatedIntent);
         } catch (IOException exception) {
-            Timber.e(exception, "Error fetching stock quotes");
+            Timber.e(exception, context.getString(R.string.error_fetch));
         }
     }
     private static void schedulePeriodic(Context context) {
-        Timber.d("Scheduling a periodic task");
+        Timber.d(context.getString(R.string.message_scheduling));
         JobInfo.Builder builder = new JobInfo.Builder(PERIODIC_ID, new ComponentName(context, QuoteJobService.class));
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPeriodic(PERIOD)

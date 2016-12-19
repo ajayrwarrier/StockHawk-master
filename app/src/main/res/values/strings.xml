@@ -33,4 +33,10 @@
     <string name="symbol" translatable="false">symbol</string>
     <string name="set_background" translatable="false">setBackgroundResource</string>
     <string name="price" translatable="true">Price</string>
+    <string name="error_fetch" translatable="true">Error fetching stock quotes</string>
+    <string name="message_scheduling" translatable="true">Scheduling a periodic task</string>
+    <string name="error_doesntexist" translatable="true">Stock doesn\'t exist!</string>
+    <string name="message_syncrun" translatable="true">Running sync job</string>
+    <string name="update_action" translatable="false">com.udacity.stockhawk.ACTION_DATA_UPDATED</string>
+    <string name="stock_exist" translatable="true">Stock Already Exists!</string>
 </resources>
